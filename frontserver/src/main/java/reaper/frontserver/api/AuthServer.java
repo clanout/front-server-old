@@ -2,6 +2,7 @@ package reaper.frontserver.api;
 
 import com.google.gson.Gson;
 import reaper.frontserver.exceptions.HttpExceptions;
+import reaper.frontserver.server.AppServer;
 import reaper.frontserver.server.request.Request;
 import reaper.frontserver.server.request.RequestFactory;
 import reaper.frontserver.services.auth.AuthService;
@@ -24,11 +25,17 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
+        System.out.println("authentication");
+
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
 
             String accessToken = request.getData("access_token");
+            if (accessToken == null)
+            {
+                throw new HttpExceptions.BadRequest();
+            }
 
             UserService userService = new UserService();
             AuthService authService = new AuthService();
@@ -45,6 +52,10 @@ public class AuthServer
             {
                 userId = userService.register(facebookService.getFacebookData());
                 if (userId == null)
+                {
+                    throw new HttpExceptions.ServerError();
+                }
+                if (!userService.createUser(userId, facebookId))
                 {
                     throw new HttpExceptions.ServerError();
                 }
@@ -91,6 +102,55 @@ public class AuthServer
         catch (HttpExceptions.NotFound e)
         {
             return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @Path("validate")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response validateSession(@Context UriInfo uriInfo, String postDataJson)
+    {
+        System.out.println("validation");
+        try
+        {
+            Request request = RequestFactory.create(uriInfo, postDataJson);
+
+            String sessionId = request.getSessionId();
+            System.out.println(sessionId);
+
+            if (sessionId == null)
+            {
+                throw new HttpExceptions.AuthenticationRequired();
+            }
+
+            AuthService authService = new AuthService();
+
+            String userId = authService.getActiveUser(sessionId);
+            if (userId == null)
+            {
+                throw new HttpExceptions.AuthenticationRequired();
+            }
+
+            System.out.println("valid");
+
+            return Response.ok().build();
+        }
+        catch (HttpExceptions.BadRequest e)
+        {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        catch (HttpExceptions.ServerError e)
+        {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        catch (HttpExceptions.NotFound e)
+        {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        catch (HttpExceptions.AuthenticationRequired authenticationRequired)
+        {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }
 }
