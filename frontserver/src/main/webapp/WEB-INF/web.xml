@@ -11,7 +11,7 @@
         </servlet-class>
         <init-param>
             <param-name>com.sun.jersey.config.property.packages</param-name>
-            <param-value>reaper.frontserver</param-value>
+            <param-value>reaper.frontserver.api</param-value>
         </init-param>
         <init-param>
             <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
@@ -24,5 +24,9 @@
         <servlet-name>jersey-serlvet</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+
+    <listener>
+        <listener-class>reaper.frontserver.core.ServerStateListener</listener-class>
+    </listener>
 
 </web-app>
