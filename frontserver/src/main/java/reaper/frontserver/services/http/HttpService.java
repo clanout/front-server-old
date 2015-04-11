@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 
 public class HttpService
 {
-    public String post(String url, String jsonData) throws HttpExceptions.ServerError, HttpExceptions.NotFound
+    public String post(String url, String jsonData) throws HttpExceptions.ServerError, HttpExceptions.NotFound, HttpExceptions.BadRequest
     {
         HttpClient client = HttpClientBuilder.create().build();
 
@@ -38,8 +38,7 @@ public class HttpService
         {
             try
             {
-                BufferedReader rd = new BufferedReader(
-                        new InputStreamReader(response.getEntity().getContent()));
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
                 StringBuffer apiResponse = new StringBuffer();
                 String line = "";
@@ -59,13 +58,17 @@ public class HttpService
         {
             throw new HttpExceptions.NotFound();
         }
+        else if (responseCode == 400)
+        {
+            throw new HttpExceptions.BadRequest();
+        }
         else
         {
             throw new HttpExceptions.ServerError();
         }
     }
 
-    public String get(String url) throws HttpExceptions.ServerError, HttpExceptions.NotFound
+    public String get(String url) throws HttpExceptions.ServerError, HttpExceptions.NotFound, HttpExceptions.BadRequest
     {
         HttpClient client = HttpClientBuilder.create().build();
 
@@ -107,6 +110,10 @@ public class HttpService
         else if (responseCode == 404)
         {
             throw new HttpExceptions.NotFound();
+        }
+        else if (responseCode == 400)
+        {
+            throw new HttpExceptions.BadRequest();
         }
         else
         {

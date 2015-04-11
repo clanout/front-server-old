@@ -25,8 +25,6 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
-        System.out.println("authentication");
-
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
@@ -111,7 +109,6 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateSession(@Context UriInfo uriInfo, String postDataJson)
     {
-        System.out.println("validation");
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
@@ -131,8 +128,6 @@ public class AuthServer
             {
                 throw new HttpExceptions.AuthenticationRequired();
             }
-
-            System.out.println("valid");
 
             return Response.ok().build();
         }
