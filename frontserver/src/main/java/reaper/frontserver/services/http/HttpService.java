@@ -1,68 +1,45 @@
 package reaper.frontserver.services.http;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
+import com.squareup.okhttp.*;
 import reaper.frontserver.exceptions.HttpExceptions;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class HttpService
 {
+    private static OkHttpClient httpClient = new OkHttpClient();
+
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
     public String post(String url, String jsonData) throws HttpExceptions.ServerError, HttpExceptions.NotFound, HttpExceptions.BadRequest
     {
-        HttpClient client = HttpClientBuilder.create().build();
-
-        HttpPost post = new HttpPost(url);
-        post.setEntity(new StringEntity(jsonData, ContentType.APPLICATION_JSON));
-
-        HttpResponse response = null;
         try
         {
-            response = client.execute(post);
-        }
-        catch (IOException e)
-        {
-            throw new HttpExceptions.ServerError();
-        }
+            RequestBody body = RequestBody.create(JSON, jsonData);
 
-        int responseCode = response.getStatusLine().getStatusCode();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
 
-        if (responseCode == 200)
-        {
-            try
+            Response response = httpClient.newCall(request).execute();
+            int responseCode = response.code();
+            if (responseCode == 200)
             {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-                StringBuffer apiResponse = new StringBuffer();
-                String line = "";
-                while ((line = rd.readLine()) != null)
-                {
-                    apiResponse.append(line);
-                }
-
-                return apiResponse.toString();
+                return response.body().string();
             }
-            catch (Exception e)
+            else if (responseCode == 404)
+            {
+                throw new HttpExceptions.NotFound();
+            }
+            else if (responseCode == 400)
+            {
+                throw new HttpExceptions.BadRequest();
+            }
+            else
             {
                 throw new HttpExceptions.ServerError();
             }
         }
-        else if (responseCode == 404)
-        {
-            throw new HttpExceptions.NotFound();
-        }
-        else if (responseCode == 400)
-        {
-            throw new HttpExceptions.BadRequest();
-        }
-        else
+        catch (Exception e)
         {
             throw new HttpExceptions.ServerError();
         }
@@ -70,52 +47,33 @@ public class HttpService
 
     public String get(String url) throws HttpExceptions.ServerError, HttpExceptions.NotFound, HttpExceptions.BadRequest
     {
-        HttpClient client = HttpClientBuilder.create().build();
-
-        HttpGet get = new HttpGet(url);
-
-        HttpResponse response = null;
         try
         {
-            response = client.execute(get);
-        }
-        catch (IOException e)
-        {
-            throw new HttpExceptions.ServerError();
-        }
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
 
-        int responseCode = response.getStatusLine().getStatusCode();
+            Response response = httpClient.newCall(request).execute();
 
-        if (responseCode == 200)
-        {
-            try
+            int responseCode = response.code();
+            if (responseCode == 200)
             {
-                BufferedReader rd = new BufferedReader(
-                        new InputStreamReader(response.getEntity().getContent()));
-
-                StringBuffer apiResponse = new StringBuffer();
-                String line = "";
-                while ((line = rd.readLine()) != null)
-                {
-                    apiResponse.append(line);
-                }
-
-                return apiResponse.toString();
+                return response.body().string();
             }
-            catch (Exception e)
+            else if (responseCode == 404)
+            {
+                throw new HttpExceptions.NotFound();
+            }
+            else if (responseCode == 400)
+            {
+                throw new HttpExceptions.BadRequest();
+            }
+            else
             {
                 throw new HttpExceptions.ServerError();
             }
         }
-        else if (responseCode == 404)
-        {
-            throw new HttpExceptions.NotFound();
-        }
-        else if (responseCode == 400)
-        {
-            throw new HttpExceptions.BadRequest();
-        }
-        else
+        catch (Exception e)
         {
             throw new HttpExceptions.ServerError();
         }

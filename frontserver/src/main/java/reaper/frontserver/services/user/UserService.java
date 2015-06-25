@@ -6,55 +6,55 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Map;
-import java.util.UUID;
 
 public class UserService
 {
-    private static final String SQL_USER_FROM_FBID = "SELECT user_id FROM users WHERE facebook_id = ?";
-    private static final String SQL_CREATE_USER = "INSERT INTO users (user_id, facebook_id) VALUES(?,?)";
+    private static final String REGISTRATION_URI = "register";
 
-    public String getFromFacebookId(String facebookId)
+    private static final String SQL_CREATE_USER = "INSERT INTO users (user_id) VALUES(?)";
+    private static final String SQL_READ_USER = "SELECT user_id FROM users WHERE user_id = ?";
+
+    public boolean isRegistered(String userId)
     {
+        boolean isRegistered = false;
+
         try
         {
-            String userId = null;
-
             Connection connection = DataSource.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_USER_FROM_FBID);
-            statement.setString(1, facebookId);
+            PreparedStatement statement = connection.prepareStatement(SQL_READ_USER);
+            statement.setString(1, userId);
 
             ResultSet resultSet = statement.executeQuery();
-
             while (resultSet.next())
             {
-                userId = resultSet.getString(1);
+                isRegistered = true;
                 break;
             }
-            resultSet.close();
 
-            return userId;
+            resultSet.close();
+            statement.close();
+            connection.close();
         }
         catch (Exception e)
         {
-            return null;
+            e.printStackTrace();
         }
+
+        return isRegistered;
     }
 
-    public boolean createUser(String userId, String facebookId)
+    public boolean createUser(String userId)
     {
         try
         {
-            if (userId.isEmpty() || facebookId.isEmpty())
-            {
-                throw new Exception("Empty userId/facebookId");
-            }
-
             Connection connection = DataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement(SQL_CREATE_USER);
             statement.setString(1, userId);
-            statement.setString(2, facebookId);
 
             statement.executeUpdate();
+
+            statement.close();
+            connection.close();
 
             return true;
         }
@@ -68,6 +68,19 @@ public class UserService
     public String register(Map<String, String> userData)
     {
         System.out.println(userData);
-        return UUID.randomUUID().toString();
+        return userData.get("id");
+
+//        Request request = new Request(REGISTRATION_URI, userData);
+//        AppServer appServer = AppServer.getInstance();
+//        try
+//        {
+//            String response = appServer.dispatch(request);
+//            String userId = BasicJsonParser.getValue(response, "user_id");
+//            return userId;
+//        }
+//        catch (Exception e)
+//        {
+//            return null;
+//        }
     }
 }

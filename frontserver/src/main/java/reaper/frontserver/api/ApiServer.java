@@ -25,6 +25,8 @@ public class ApiServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
+        System.out.println("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);

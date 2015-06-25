@@ -1,8 +1,8 @@
 package reaper.frontserver.server.request;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import reaper.frontserver.exceptions.HttpExceptions;
+import reaper.frontserver.services.json.GsonProvider;
 
 import javax.ws.rs.core.UriInfo;
 import java.lang.reflect.Type;
@@ -46,7 +46,7 @@ public class RequestFactory
                 Type type = new TypeToken<Map<String, String>>()
                 {
                 }.getType();
-                Map<String, String> data = (new Gson()).fromJson(postDataJson, type);
+                Map<String, String> data = GsonProvider.getGson().fromJson(postDataJson, type);
                 return data;
             }
             catch (Exception e)

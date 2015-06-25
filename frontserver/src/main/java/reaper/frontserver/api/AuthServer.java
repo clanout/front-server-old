@@ -1,15 +1,17 @@
 package reaper.frontserver.api;
 
-import com.google.gson.Gson;
 import reaper.frontserver.exceptions.HttpExceptions;
-import reaper.frontserver.server.AppServer;
 import reaper.frontserver.server.request.Request;
 import reaper.frontserver.server.request.RequestFactory;
 import reaper.frontserver.services.auth.AuthService;
 import reaper.frontserver.services.facebook.FacebookService;
+import reaper.frontserver.services.json.GsonProvider;
 import reaper.frontserver.services.user.UserService;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -25,6 +27,8 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
+        System.out.println("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
@@ -39,21 +43,20 @@ public class AuthServer
             AuthService authService = new AuthService();
             FacebookService facebookService = new FacebookService(accessToken);
 
-            String facebookId = facebookService.getFacebookId(accessToken);
-            if (facebookId == null)
+            String userId = facebookService.getUserId(accessToken);
+            if (userId == null)
             {
                 throw new HttpExceptions.ServerError();
             }
 
-            String userId = userService.getFromFacebookId(facebookId);
-            if (userId == null)
+            if (!userService.isRegistered(userId))
             {
                 userId = userService.register(facebookService.getFacebookData());
                 if (userId == null)
                 {
                     throw new HttpExceptions.ServerError();
                 }
-                if (!userService.createUser(userId, facebookId))
+                if (!userService.createUser(userId))
                 {
                     throw new HttpExceptions.ServerError();
                 }
@@ -68,7 +71,7 @@ public class AuthServer
                 Map<String, String> response = new HashMap<>();
                 response.put("_SESSIONID", sessionId);
 
-                String responseJson = (new Gson()).toJson(response);
+                String responseJson = GsonProvider.getGson().toJson(response);
 
                 return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
             }
@@ -84,7 +87,7 @@ public class AuthServer
                 Map<String, String> response = new HashMap<>();
                 response.put("_SESSIONID", sessionId);
 
-                String responseJson = (new Gson()).toJson(response);
+                String responseJson = GsonProvider.getGson().toJson(response);
 
                 return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
             }
@@ -109,12 +112,13 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateSession(@Context UriInfo uriInfo, String postDataJson)
     {
+        System.out.println("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
 
             String sessionId = request.getSessionId();
-            System.out.println(sessionId);
 
             if (sessionId == null)
             {

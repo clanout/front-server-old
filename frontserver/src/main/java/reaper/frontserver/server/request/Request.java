@@ -1,6 +1,6 @@
 package reaper.frontserver.server.request;
 
-import com.google.gson.Gson;
+import reaper.frontserver.services.json.GsonProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +48,6 @@ public class Request
     @Override
     public String toString()
     {
-        return new Gson().toJson(data);
+        return GsonProvider.getGson().toJson(data);
     }
 }

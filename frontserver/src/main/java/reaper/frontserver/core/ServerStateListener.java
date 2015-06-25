@@ -10,11 +10,11 @@ public class ServerStateListener implements ServletContextListener
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent)
     {
-        System.out.println("Server Started");
+        System.out.println("[[ FRONT SERVER STARTED ]]");
 
         try
         {
-            System.out.println("Initializing DB Connection Pool...");
+            System.out.println("[ Initializing DB Connection Pool ]");
             DataSource.init();
         }
         catch (Exception e)
@@ -26,9 +26,9 @@ public class ServerStateListener implements ServletContextListener
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent)
     {
-        System.out.println("Closing DB Connection Pool...");
+        System.out.println("[ Closing DB Connection Pool ]");
         DataSource.close();
 
-        System.out.println("Server Stopped");
+        System.out.println("[[ FRONT SERVER STOPPED ]]");
     }
 }

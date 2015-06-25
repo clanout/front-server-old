@@ -9,7 +9,7 @@ import reaper.frontserver.services.http.HttpService;
 public class AppServer
 {
     private static AppServer appServer;
-    private static final String APP_SERVER_ROOT = ConfLoader.getConf(ConfResource.SERVER).get("appserver.url") + "/";
+    private static final String APP_SERVER_ROOT = ConfLoader.getConf(ConfResource.SERVER).get("appserver.url");
 
     private HttpService httpService;
 
@@ -17,12 +17,10 @@ public class AppServer
     {
         if (appServer == null)
         {
-            return new AppServer();
+            appServer = new AppServer();
         }
-        else
-        {
-            return appServer;
-        }
+
+        return appServer;
     }
 
     private AppServer()
@@ -30,14 +28,9 @@ public class AppServer
         httpService = new HttpService();
     }
 
-    public String dispatch(Request request) throws HttpExceptions.NotFound, HttpExceptions.ServerError
+    public String dispatch(Request request) throws HttpExceptions.NotFound, HttpExceptions.ServerError, HttpExceptions.BadRequest
     {
-        return httpService.post(buildUrl(request.getUri()), request.toString());
-    }
-
-    private static String buildUrl(String uri)
-    {
-        return APP_SERVER_ROOT + uri;
+        return httpService.post(APP_SERVER_ROOT, request.toString());
     }
 
 }

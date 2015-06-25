@@ -1,9 +1,8 @@
 package reaper.frontserver.services.facebook;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import reaper.frontserver.exceptions.HttpExceptions;
 import reaper.frontserver.services.http.HttpService;
+import reaper.frontserver.services.json.GsonProvider;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -51,8 +50,10 @@ public class FacebookService
 
         try
         {
-            Type type = new TypeToken<Map<String,String>>(){}.getType();
-            facebookData = (new Gson()).fromJson(facebookResponse, type);
+            Type type = new TypeToken<Map<String, String>>()
+            {
+            }.getType();
+            facebookData = GsonProvider.getGson().fromJson(facebookResponse, type);
         }
         catch (Exception e)
         {
@@ -62,7 +63,7 @@ public class FacebookService
     }
 
 
-    public String getFacebookId(String access_token)
+    public String getUserId(String accessToken)
     {
         if (!isValid())
         {
