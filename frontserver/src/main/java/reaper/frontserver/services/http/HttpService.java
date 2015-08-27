@@ -41,7 +41,7 @@ public class HttpService
         }
         catch (Exception e)
         {
-            throw new HttpExceptions.ServerError();
+            throw new HttpExceptions.ServerError(e.getMessage());
         }
     }
 
@@ -75,7 +75,7 @@ public class HttpService
         }
         catch (Exception e)
         {
-            throw new HttpExceptions.ServerError();
+            throw new HttpExceptions.ServerError(e.getMessage());
         }
     }
 }

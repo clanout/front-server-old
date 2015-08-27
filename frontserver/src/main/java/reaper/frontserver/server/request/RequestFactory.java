@@ -2,7 +2,7 @@ package reaper.frontserver.server.request;
 
 import com.google.gson.reflect.TypeToken;
 import reaper.frontserver.exceptions.HttpExceptions;
-import reaper.frontserver.services.json.GsonProvider;
+import reaper.frontserver.services.http.json.GsonProvider;
 
 import javax.ws.rs.core.UriInfo;
 import java.lang.reflect.Type;
@@ -27,13 +27,13 @@ public class RequestFactory
             String apiUri = uriStr.substring(VERSION_PREFIX_LENGTH);
             if (apiUri.isEmpty())
             {
-                throw new HttpExceptions.NotFound();
+                throw new HttpExceptions.NotFound("uri is empty");
             }
             return apiUri;
         }
         catch (Exception e)
         {
-            throw new HttpExceptions.ServerError();
+            throw new HttpExceptions.ServerError("error while processing uri : " + e.getMessage());
         }
     }
 
@@ -51,13 +51,12 @@ public class RequestFactory
             }
             catch (Exception e)
             {
-                e.printStackTrace();
-                throw new HttpExceptions.BadRequest();
+                throw new HttpExceptions.BadRequest("error while processing json data : " + e.getMessage());
             }
         }
         else
         {
-            throw new HttpExceptions.BadRequest();
+            throw new HttpExceptions.BadRequest("json data is null");
         }
     }
 }

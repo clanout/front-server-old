@@ -1,11 +1,12 @@
 package reaper.frontserver.api;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import reaper.frontserver.exceptions.HttpExceptions;
 import reaper.frontserver.server.request.Request;
 import reaper.frontserver.server.request.RequestFactory;
 import reaper.frontserver.services.auth.AuthService;
-import reaper.frontserver.services.facebook.FacebookService;
-import reaper.frontserver.services.json.GsonProvider;
+import reaper.frontserver.services.http.json.GsonProvider;
 import reaper.frontserver.services.user.UserService;
 
 import javax.ws.rs.Consumes;
@@ -22,86 +23,78 @@ import java.util.Map;
 @Path("/v1.0/auth")
 public class AuthServer
 {
+    private static Logger LOG = LogManager.getRootLogger();
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
-        System.out.println("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+        LOG.info("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
 
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
 
-            String accessToken = request.getData("access_token");
-            if (accessToken == null)
+            String userId = request.getData("id");
+            String firstname = request.getData("first_name");
+            String lastname = request.getData("last_name");
+            String gender = request.getData("gender");
+            String email = request.getData("email");
+
+            if (userId == null || firstname == null || lastname == null || gender == null || email == null)
             {
-                throw new HttpExceptions.BadRequest();
+                throw new HttpExceptions.BadRequest("user_data is null");
             }
 
             UserService userService = new UserService();
             AuthService authService = new AuthService();
-            FacebookService facebookService = new FacebookService(accessToken);
-
-            String userId = facebookService.getUserId(accessToken);
-            if (userId == null)
-            {
-                throw new HttpExceptions.ServerError();
-            }
 
             if (!userService.isRegistered(userId))
             {
-                userId = userService.register(facebookService.getFacebookData());
+                LOG.info("[New User] " + userId + " : " + firstname + " " + lastname);
+
+                userId = userService.register(userId, firstname, lastname, gender, email);
                 if (userId == null)
                 {
-                    throw new HttpExceptions.ServerError();
+                    throw new HttpExceptions.ServerError("unable to register user with appserver");
                 }
                 if (!userService.createUser(userId))
                 {
-                    throw new HttpExceptions.ServerError();
+                    throw new HttpExceptions.ServerError("unable to create user");
                 }
-
-                String sessionId = authService.login(userId);
-
-                if (sessionId == null)
-                {
-                    throw new HttpExceptions.ServerError();
-                }
-
-                Map<String, String> response = new HashMap<>();
-                response.put("_SESSIONID", sessionId);
-
-                String responseJson = GsonProvider.getGson().toJson(response);
-
-                return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
             }
             else
             {
-                String sessionId = authService.login(userId);
-
-                if (sessionId == null)
-                {
-                    throw new HttpExceptions.ServerError();
-                }
-
-                Map<String, String> response = new HashMap<>();
-                response.put("_SESSIONID", sessionId);
-
-                String responseJson = GsonProvider.getGson().toJson(response);
-
-                return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
+                LOG.info("[Recurring User] " + userId + " : " + firstname + " " + lastname);
             }
+
+            String sessionId = authService.login(userId);
+            if (sessionId == null)
+            {
+                throw new HttpExceptions.ServerError("unable to create new session for user = " + userId);
+            }
+
+            Map<String, String> response = new HashMap<>();
+            response.put("_SESSIONID", sessionId);
+
+            String responseJson = GsonProvider.getGson().toJson(response);
+
+            return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
         }
         catch (HttpExceptions.BadRequest e)
         {
+            LOG.error("[BAD REQUEST] " + e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
+            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
+            LOG.error("[NOT FOUND] " + e.getMessage());
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
@@ -112,43 +105,47 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateSession(@Context UriInfo uriInfo, String postDataJson)
     {
-        System.out.println("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+        LOG.info("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
 
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
 
             String sessionId = request.getSessionId();
-
             if (sessionId == null)
             {
-                throw new HttpExceptions.AuthenticationRequired();
+                throw new HttpExceptions.BadRequest("session_id is null/empty");
             }
 
             AuthService authService = new AuthService();
-
             String userId = authService.getActiveUser(sessionId);
             if (userId == null)
             {
-                throw new HttpExceptions.AuthenticationRequired();
+                throw new HttpExceptions.AuthenticationRequired("invalid session");
             }
+
+            LOG.info("[Valid Session]");
 
             return Response.ok().build();
         }
         catch (HttpExceptions.BadRequest e)
         {
+            LOG.error("[BAD REQUEST] " + e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
+            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
+            LOG.error("[NOT FOUND] " + e.getMessage());
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        catch (HttpExceptions.AuthenticationRequired authenticationRequired)
+        catch (HttpExceptions.AuthenticationRequired e)
         {
+            LOG.error("[AUTHENTICATION REQUIRED] " + e.getMessage());
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }

@@ -1,14 +1,22 @@
 package reaper.frontserver.services.user;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import reaper.frontserver.db.DataSource;
+import reaper.frontserver.server.AppServer;
+import reaper.frontserver.server.request.Request;
+import reaper.frontserver.services.http.json.BasicJsonParser;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.Map;
 
 public class UserService
 {
+    private static Logger LOG = LogManager.getRootLogger();
+
     private static final String REGISTRATION_URI = "register";
 
     private static final String SQL_CREATE_USER = "INSERT INTO users (user_id) VALUES(?)";
@@ -37,7 +45,7 @@ public class UserService
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOG.error("error while checking user registration status", e);
         }
 
         return isRegistered;
@@ -60,27 +68,32 @@ public class UserService
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOG.error("error while creating user", e);
             return false;
         }
     }
 
-    public String register(Map<String, String> userData)
+    public String register(String id, String firstname, String lastname, String gender, String email)
     {
-        System.out.println(userData);
-        return userData.get("id");
+        Map<String, String> userData = new HashMap<>();
+        userData.put("id", id);
+        userData.put("first_name", firstname);
+        userData.put("last_name", lastname);
+        userData.put("gender", gender);
+        userData.put("email", email);
 
-//        Request request = new Request(REGISTRATION_URI, userData);
-//        AppServer appServer = AppServer.getInstance();
-//        try
-//        {
-//            String response = appServer.dispatch(request);
-//            String userId = BasicJsonParser.getValue(response, "user_id");
-//            return userId;
-//        }
-//        catch (Exception e)
-//        {
-//            return null;
-//        }
+        Request request = new Request(REGISTRATION_URI, userData);
+        AppServer appServer = AppServer.getInstance();
+        try
+        {
+            String response = appServer.dispatch(request);
+            String userId = BasicJsonParser.getValue(response, "user_id");
+            return userId;
+        }
+        catch (Exception e)
+        {
+            LOG.error("error while registering user with appserver", e);
+            return null;
+        }
     }
 }

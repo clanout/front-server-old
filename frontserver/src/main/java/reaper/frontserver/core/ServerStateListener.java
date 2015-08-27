@@ -1,5 +1,7 @@
 package reaper.frontserver.core;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import reaper.frontserver.db.DataSource;
 
 import javax.servlet.ServletContextEvent;
@@ -7,14 +9,16 @@ import javax.servlet.ServletContextListener;
 
 public class ServerStateListener implements ServletContextListener
 {
+    private static Logger LOG = LogManager.getRootLogger();
+
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent)
     {
-        System.out.println("[[ FRONT SERVER STARTED ]]");
+        LOG.info("[[ FRONT SERVER STARTED ]]");
 
         try
         {
-            System.out.println("[ Initializing DB Connection Pool ]");
+            LOG.info("[ Initializing DB Connection Pool ]");
             DataSource.init();
         }
         catch (Exception e)
@@ -26,9 +30,9 @@ public class ServerStateListener implements ServletContextListener
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent)
     {
-        System.out.println("[ Closing DB Connection Pool ]");
+        LOG.info("[ Closing DB Connection Pool ]");
         DataSource.close();
 
-        System.out.println("[[ FRONT SERVER STOPPED ]]");
+        LOG.info("[[ FRONT SERVER STOPPED ]]");
     }
 }

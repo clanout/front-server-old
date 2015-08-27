@@ -1,6 +1,5 @@
-package reaper.frontserver.services.json;
+package reaper.frontserver.services.http.json;
 
-import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.*;
 
 import java.util.ArrayList;

@@ -1,5 +1,7 @@
 package reaper.frontserver.api;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import reaper.frontserver.exceptions.HttpExceptions;
 import reaper.frontserver.server.AppServer;
 import reaper.frontserver.server.request.Request;
@@ -20,12 +22,14 @@ import javax.ws.rs.core.UriInfo;
 @Path("/v1.0/{uri: .*}")
 public class ApiServer
 {
+    private static Logger LOG = LogManager.getRootLogger();
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
-        System.out.println("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+        LOG.info("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
 
         try
         {

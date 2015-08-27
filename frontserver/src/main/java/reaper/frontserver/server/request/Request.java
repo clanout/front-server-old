@@ -1,6 +1,6 @@
 package reaper.frontserver.server.request;
 
-import reaper.frontserver.services.json.GsonProvider;
+import reaper.frontserver.services.http.json.GsonProvider;
 
 import java.util.HashMap;
 import java.util.Map;
