@@ -34,6 +34,8 @@ public class AuthService
                 break;
             }
             resultSet.close();
+            statement.close();
+            connection.close();
 
             return userId;
         }
@@ -56,6 +58,8 @@ public class AuthService
             statement.setString(2, userId);
 
             statement.executeUpdate();
+            statement.close();
+            connection.close();
 
             return sessionId;
         }
