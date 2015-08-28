@@ -10,7 +10,7 @@
         <RollingFile name="RollingFile" fileName="${log-path}/log.out"
                      filePattern="${log-path}/log.out.%d{yyyy-MM-dd}">
             <PatternLayout>
-                <pattern>[%5p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t : %C.%M() : %L] %m%n</pattern>
+                <pattern>[%5p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %m%n</pattern>
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>

@@ -30,7 +30,7 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
-        LOG.info("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+        LOG.info("[REQUEST] " + uriInfo.getPath() + " -> " + postDataJson);
 
         try
         {
@@ -52,7 +52,7 @@ public class AuthServer
 
             if (!userService.isRegistered(userId))
             {
-                LOG.info("[New User] " + userId + " : " + firstname + " " + lastname);
+                LOG.info("[RESPONSE] New User -> " + userId + " : " + firstname + " " + lastname);
 
                 userId = userService.register(userId, firstname, lastname, gender, email);
                 if (userId == null)
@@ -66,7 +66,7 @@ public class AuthServer
             }
             else
             {
-                LOG.info("[Recurring User] " + userId + " : " + firstname + " " + lastname);
+                LOG.info("[RESPONSE] Recurring User ->" + userId + " : " + firstname + " " + lastname);
             }
 
             String sessionId = authService.login(userId);
@@ -78,23 +78,24 @@ public class AuthServer
             Map<String, String> response = new HashMap<>();
             response.put("_SESSIONID", sessionId);
 
-            String responseJson = GsonProvider.getGson().toJson(response);
+            LOG.info("[RESPONSE] SUCCESS");
 
+            String responseJson = GsonProvider.getGson().toJson(response);
             return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
         }
         catch (HttpExceptions.BadRequest e)
         {
-            LOG.error("[BAD REQUEST] " + e.getMessage());
+            LOG.error("[BAD REQUEST] " + e.getMessage() + "\n");
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
-            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage());
+            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage() + "\n");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
-            LOG.error("[NOT FOUND] " + e.getMessage());
+            LOG.error("[NOT FOUND] " + e.getMessage() + "\n");
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
@@ -105,7 +106,7 @@ public class AuthServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateSession(@Context UriInfo uriInfo, String postDataJson)
     {
-        LOG.info("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
+        LOG.info("[REQUEST] " + uriInfo.getPath() + " -> " + postDataJson);
 
         try
         {
@@ -124,28 +125,28 @@ public class AuthServer
                 throw new HttpExceptions.AuthenticationRequired("invalid session");
             }
 
-            LOG.info("[Valid Session]");
+            LOG.info("[RESPONSE] SUCCESS");
 
             return Response.ok().build();
         }
         catch (HttpExceptions.BadRequest e)
         {
-            LOG.error("[BAD REQUEST] " + e.getMessage());
+            LOG.error("[BAD REQUEST] " + e.getMessage() + "\n");
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
-            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage());
+            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage() + "\n");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
-            LOG.error("[NOT FOUND] " + e.getMessage());
+            LOG.error("[NOT FOUND] " + e.getMessage() + "\n");
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         catch (HttpExceptions.AuthenticationRequired e)
         {
-            LOG.error("[AUTHENTICATION REQUIRED] " + e.getMessage());
+            LOG.error("[AUTHENTICATION REQUIRED] " + e.getMessage() + "\n");
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }

@@ -7,7 +7,6 @@ import reaper.frontserver.server.AppServer;
 import reaper.frontserver.server.request.Request;
 import reaper.frontserver.server.request.RequestFactory;
 import reaper.frontserver.services.auth.AuthService;
-import reaper.frontserver.services.user.UserService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -29,8 +28,7 @@ public class ApiServer
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@Context UriInfo uriInfo, String postDataJson)
     {
-        LOG.info("[ " + uriInfo.getPath() + " ]\n" + postDataJson + "\n");
-
+        LOG.info("[REQUEST] " + uriInfo.getPath() + " -> " + postDataJson);
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
@@ -54,22 +52,27 @@ public class ApiServer
             AppServer appServer = AppServer.getInstance();
             String response = appServer.dispatch(request);
 
+            LOG.info("[RESPONSE] SUCCESS\n");
             return Response.ok(response, MediaType.APPLICATION_JSON_TYPE).build();
         }
         catch (HttpExceptions.BadRequest e)
         {
+            LOG.error("[BAD REQUEST] " + e.getMessage() + "\n");
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
+            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage() + "\n");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
+            LOG.error("[NOT FOUND] " + e.getMessage() + "\n");
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        catch (HttpExceptions.AuthenticationRequired authenticationRequired)
+        catch (HttpExceptions.AuthenticationRequired e)
         {
+            LOG.error("[AUTHENTICATION REQUIRED] " + e.getMessage() + "\n");
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }
