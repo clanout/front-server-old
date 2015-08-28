@@ -78,7 +78,7 @@ public class AuthServer
             Map<String, String> response = new HashMap<>();
             response.put("_SESSIONID", sessionId);
 
-            LOG.info("[RESPONSE] SUCCESS");
+            LOG.info("[RESPONSE] SUCCESS\n");
 
             String responseJson = GsonProvider.getGson().toJson(response);
             return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
@@ -125,7 +125,7 @@ public class AuthServer
                 throw new HttpExceptions.AuthenticationRequired("invalid session");
             }
 
-            LOG.info("[RESPONSE] SUCCESS");
+            LOG.info("[RESPONSE] SUCCESS\n");
 
             return Response.ok().build();
         }
