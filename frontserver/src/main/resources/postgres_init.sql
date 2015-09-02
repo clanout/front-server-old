@@ -8,3 +8,10 @@ CREATE TABLE sessions
   session_id VARCHAR PRIMARY KEY NOT NULL,
   user_id    VARCHAR REFERENCES users (user_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE TABLE user_feedback
+{
+  user_id VARCHAR REFERENCES users (user_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+  rating INTEGER NOT NULL,
+  feedback TAXT
+};
