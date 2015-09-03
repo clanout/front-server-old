@@ -73,6 +73,10 @@ public class HttpService
                 throw new HttpExceptions.ServerError();
             }
         }
+        catch (HttpExceptions.NotFound | HttpExceptions.BadRequest | HttpExceptions.ServerError e)
+        {
+            throw e;
+        }
         catch (Exception e)
         {
             throw new HttpExceptions.ServerError(e.getMessage());
