@@ -52,27 +52,27 @@ public class ApiServer
             AppServer appServer = AppServer.getInstance();
             String response = appServer.dispatch(request);
 
-            LOG.info("[RESPONSE] SUCCESS\n");
+            LOG.info("[RESPONSE] SUCCESS");
             return Response.ok(response, MediaType.APPLICATION_JSON_TYPE).build();
         }
         catch (HttpExceptions.BadRequest e)
         {
-            LOG.error("[BAD REQUEST] " + e.getMessage() + "\n");
+            LOG.error("[BAD REQUEST]");
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
-            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage() + "\n");
+            LOG.error("[INTERNAL SERVER ERROR]");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
-            LOG.error("[NOT FOUND] " + e.getMessage() + "\n");
+            LOG.error("[NOT FOUND]");
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         catch (HttpExceptions.AuthenticationRequired e)
         {
-            LOG.error("[AUTHENTICATION REQUIRED] " + e.getMessage() + "\n");
+            LOG.error("[AUTHENTICATION REQUIRED]");
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }

@@ -78,24 +78,24 @@ public class AuthServer
             Map<String, String> response = new HashMap<>();
             response.put("_SESSIONID", sessionId);
 
-            LOG.info("[RESPONSE] SUCCESS\n");
+            LOG.info("[RESPONSE] SUCCESS");
 
             String responseJson = GsonProvider.getGson().toJson(response);
             return Response.ok(responseJson, MediaType.APPLICATION_JSON_TYPE).build();
         }
         catch (HttpExceptions.BadRequest e)
         {
-            LOG.error("[BAD REQUEST] " + e.getMessage() + "\n");
+            LOG.error("[BAD REQUEST] " + e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
-            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage() + "\n");
+            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
-            LOG.error("[NOT FOUND] " + e.getMessage() + "\n");
+            LOG.error("[NOT FOUND] " + e.getMessage());
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
@@ -125,28 +125,28 @@ public class AuthServer
                 throw new HttpExceptions.AuthenticationRequired("invalid session");
             }
 
-            LOG.info("[RESPONSE] SUCCESS\n");
+            LOG.info("[RESPONSE] SUCCESS");
 
             return Response.ok().build();
         }
         catch (HttpExceptions.BadRequest e)
         {
-            LOG.error("[BAD REQUEST] " + e.getMessage() + "\n");
+            LOG.error("[BAD REQUEST] " + e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         catch (HttpExceptions.ServerError e)
         {
-            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage() + "\n");
+            LOG.error("[INTERNAL SERVER ERROR] " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         catch (HttpExceptions.NotFound e)
         {
-            LOG.error("[NOT FOUND] " + e.getMessage() + "\n");
+            LOG.error("[NOT FOUND] " + e.getMessage());
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         catch (HttpExceptions.AuthenticationRequired e)
         {
-            LOG.error("[AUTHENTICATION REQUIRED] " + e.getMessage() + "\n");
+            LOG.error("[AUTHENTICATION REQUIRED] " + e.getMessage());
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }

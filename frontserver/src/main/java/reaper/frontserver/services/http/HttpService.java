@@ -15,6 +15,8 @@ public class HttpService
 
     public String post(String url, String jsonData) throws HttpExceptions.ServerError, HttpExceptions.NotFound, HttpExceptions.BadRequest
     {
+        Response response;
+
         try
         {
             RequestBody body = RequestBody.create(JSON, jsonData);
@@ -24,29 +26,38 @@ public class HttpService
                     .post(body)
                     .build();
 
-            Response response = httpClient.newCall(request).execute();
-            int responseCode = response.code();
-            if (responseCode == 200)
-            {
-                return response.body().string();
-            }
-            else if (responseCode == 404)
-            {
-                throw new HttpExceptions.NotFound();
-            }
-            else if (responseCode == 400)
-            {
-                throw new HttpExceptions.BadRequest();
-            }
-            else
-            {
-                throw new HttpExceptions.ServerError();
-            }
+            response = httpClient.newCall(request).execute();
         }
         catch (Exception e)
         {
             throw new HttpExceptions.ServerError(e.getMessage());
         }
+
+        int responseCode = response.code();
+        if (responseCode == 200)
+        {
+            try
+            {
+                return response.body().string();
+            }
+            catch (IOException e)
+            {
+                throw new HttpExceptions.ServerError(e.getMessage());
+            }
+        }
+        else if (responseCode == 404)
+        {
+            throw new HttpExceptions.NotFound();
+        }
+        else if (responseCode == 400)
+        {
+            throw new HttpExceptions.BadRequest();
+        }
+        else
+        {
+            throw new HttpExceptions.ServerError();
+        }
+
     }
 
     public String get(String url) throws HttpExceptions.ServerError, HttpExceptions.NotFound, HttpExceptions.BadRequest
