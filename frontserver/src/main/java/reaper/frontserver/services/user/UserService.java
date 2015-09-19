@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserService
@@ -73,7 +74,7 @@ public class UserService
         }
     }
 
-    public String register(String id, String firstname, String lastname, String gender, String email)
+    public String register(String id, String firstname, String lastname, String gender, String email, String friends)
     {
         Map<String, String> userData = new HashMap<>();
         userData.put("id", id);
@@ -81,6 +82,7 @@ public class UserService
         userData.put("last_name", lastname);
         userData.put("gender", gender);
         userData.put("email", email);
+        userData.put("friends", friends);
 
         Request request = new Request(REGISTRATION_URI, userData);
         AppServer appServer = AppServer.getInstance();

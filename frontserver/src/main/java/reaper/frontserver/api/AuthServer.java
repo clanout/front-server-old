@@ -1,5 +1,6 @@
 package reaper.frontserver.api;
 
+import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reaper.frontserver.exceptions.HttpExceptions;
@@ -17,7 +18,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Path("/v1.0/auth")
@@ -41,8 +44,9 @@ public class AuthServer
             String lastname = request.getData("last_name");
             String gender = request.getData("gender");
             String email = request.getData("email");
+            String friends = request.getData("friend_list");
 
-            if (userId == null || firstname == null || lastname == null || gender == null || email == null)
+            if (userId == null || firstname == null || lastname == null || gender == null || email == null || friends == null)
             {
                 throw new HttpExceptions.BadRequest("user_data is null");
             }
@@ -54,7 +58,7 @@ public class AuthServer
             {
                 LOG.info("[RESPONSE] New User -> " + userId + " : " + firstname + " " + lastname);
 
-                userId = userService.register(userId, firstname, lastname, gender, email);
+                userId = userService.register(userId, firstname, lastname, gender, email, friends);
                 if (userId == null)
                 {
                     throw new HttpExceptions.ServerError("unable to register user with appserver");
