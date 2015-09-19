@@ -14,8 +14,7 @@ public class NotificationServer
 {
     private static Logger LOG = LogManager.getRootLogger();
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response jsonPost(@QueryParam("to") String to, @QueryParam("from") String from, String postDataJson)
     {
