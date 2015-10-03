@@ -10,8 +10,8 @@ CREATE TABLE sessions
 );
 
 CREATE TABLE user_feedback
-{
+(
   user_id VARCHAR REFERENCES users (user_id) ON UPDATE NO ACTION ON DELETE NO ACTION,
-  rating INTEGER NOT NULL,
-  feedback TAXT
-};
+  type    INTEGER NOT NULL,
+  comment TEXT
+);

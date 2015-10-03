@@ -46,14 +46,14 @@ public class FeedbackServer
                 throw new HttpExceptions.AuthenticationRequired();
             }
 
-            int rating = -1;
-            String feedback;
+            int type = -1;
+            String comment;
             try
             {
-                rating = Integer.parseInt(request.getData("rating"));
-                feedback = request.getData("feedback");
+                type = Integer.parseInt(request.getData("type"));
+                comment = request.getData("comment");
 
-                if (rating == -1 || feedback == null)
+                if (type == -1 || comment == null)
                 {
                     throw new NullPointerException("rating/feedback is null");
                 }
@@ -64,7 +64,7 @@ public class FeedbackServer
             }
 
             FeedbackService feedbackService = new FeedbackService();
-            feedbackService.add(userId, rating, feedback);
+            feedbackService.add(userId, type, comment);
 
             LOG.info("[RESPONSE] SUCCESS\n");
             return Response.ok().build();

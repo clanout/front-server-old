@@ -13,15 +13,15 @@ public class FeedbackService
 
     private static final String SQL_INSERT = "INSERT INTO user_feedback VALUES (?,?,?)";
 
-    public void add(String userId, int rating, String feedback)
+    public void add(String userId, int type, String comment)
     {
         try
         {
             Connection connection = DataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement(SQL_INSERT);
             statement.setString(1, userId);
-            statement.setInt(2, rating);
-            statement.setString(3, feedback);
+            statement.setInt(2, type);
+            statement.setString(3, comment);
 
             statement.executeUpdate();
             statement.close();
