@@ -10,6 +10,6 @@ public class HealthCheckServer
     @GET
     public Response healthCheck()
     {
-        return Response.ok().build();
+        return Response.ok("SERVER HEALTHY").build();
     }
 }
