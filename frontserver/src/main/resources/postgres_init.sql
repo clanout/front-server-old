@@ -15,3 +15,9 @@ CREATE TABLE user_feedback
   type    INTEGER NOT NULL,
   comment TEXT
 );
+
+CREATE TABLE subscriptions
+(
+  email                  VARCHAR(25) PRIMARY KEY                               NOT NULL,
+  subscription_timestamp TIMESTAMP WITH TIME ZONE                              NOT NULL
+);
