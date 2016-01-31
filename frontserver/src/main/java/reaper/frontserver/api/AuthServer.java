@@ -7,6 +7,7 @@ import reaper.frontserver.exceptions.HttpExceptions;
 import reaper.frontserver.server.request.Request;
 import reaper.frontserver.server.request.RequestFactory;
 import reaper.frontserver.services.auth.AuthService;
+import reaper.frontserver.services.facebook.FacebookService;
 import reaper.frontserver.services.http.json.GsonProvider;
 import reaper.frontserver.services.user.UserService;
 
@@ -39,12 +40,41 @@ public class AuthServer
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
 
-            String userId = request.getData("id");
-            String firstname = request.getData("first_name");
-            String lastname = request.getData("last_name");
-            String gender = request.getData("gender");
-            String email = request.getData("email");
-            String friends = request.getData("friend_list");
+            String userId = null;
+            String firstname = null;
+            String lastname = null;
+            String email = null;
+            String gender = null;
+            String friends = null;
+
+            String accessToken = request.getData("access_token");
+
+            if (accessToken != null)
+            {
+                FacebookService facebookService = new FacebookService();
+                FacebookService.UserData userData = facebookService.getFacebookData(accessToken);
+                if(userData == null)
+                {
+                    throw new HttpExceptions.BadRequest("user_data is null");
+                }
+
+                userId = userData.id;
+                firstname = userData.firstname;
+                lastname = userData.lastname;
+                email = userData.email;
+                gender = userData.gender;
+
+                friends = request.getData("friend_list");
+            }
+            else
+            {
+                userId = request.getData("id");
+                firstname = request.getData("first_name");
+                lastname = request.getData("last_name");
+                gender = request.getData("gender");
+                email = request.getData("email");
+                friends = request.getData("friend_list");
+            }
 
             if (userId == null || firstname == null || lastname == null || gender == null || email == null || friends == null)
             {
