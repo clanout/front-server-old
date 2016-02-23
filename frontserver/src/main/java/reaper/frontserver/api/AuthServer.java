@@ -39,42 +39,25 @@ public class AuthServer
         try
         {
             Request request = RequestFactory.create(uriInfo, postDataJson);
-
-            String userId = null;
-            String firstname = null;
-            String lastname = null;
-            String email = null;
-            String gender = null;
-            String friends = null;
-
             String accessToken = request.getData("access_token");
-
-            if (accessToken != null)
+            if (accessToken == null)
             {
-                FacebookService facebookService = new FacebookService();
-                FacebookService.UserData userData = facebookService.getFacebookData(accessToken);
-                if (userData == null)
-                {
-                    throw new HttpExceptions.BadRequest("user_data is null");
-                }
-
-                userId = userData.id;
-                firstname = userData.firstname;
-                lastname = userData.lastname;
-                email = userData.email;
-                gender = userData.gender;
-
-                friends = request.getData("friend_list");
+                throw new HttpExceptions.BadRequest("access_token null");
             }
-            else
+
+            FacebookService facebookService = new FacebookService();
+            FacebookService.UserData userData = facebookService.getFacebookData(accessToken);
+            if (userData == null)
             {
-                userId = request.getData("id");
-                firstname = request.getData("first_name");
-                lastname = request.getData("last_name");
-                gender = request.getData("gender");
-                email = request.getData("email");
-                friends = request.getData("friend_list");
+                throw new HttpExceptions.BadRequest("user_data is null");
             }
+
+            String userId = userData.id;
+            String firstname = userData.firstname;
+            String lastname = userData.lastname;
+            String email = userData.email;
+            String gender = userData.gender;
+            String friends = request.getData("friend_list");
 
             if (userId == null || firstname == null || lastname == null || gender == null || email == null || friends == null)
             {
