@@ -53,7 +53,7 @@ public class AuthServer
             {
                 FacebookService facebookService = new FacebookService();
                 FacebookService.UserData userData = facebookService.getFacebookData(accessToken);
-                if(userData == null)
+                if (userData == null)
                 {
                     throw new HttpExceptions.BadRequest("user_data is null");
                 }
@@ -84,8 +84,11 @@ public class AuthServer
             UserService userService = new UserService();
             AuthService authService = new AuthService();
 
+            boolean isNewUser = false;
             if (!userService.isRegistered(userId))
             {
+                isNewUser = true;
+
                 LOG.info("[RESPONSE] New User -> " + userId + " : " + firstname + " " + lastname);
 
                 userId = userService.register(userId, firstname, lastname, gender, email, friends);
@@ -109,9 +112,7 @@ public class AuthServer
                 throw new HttpExceptions.ServerError("unable to create new session for user = " + userId);
             }
 
-            Map<String, String> response = new HashMap<>();
-            response.put("_SESSIONID", sessionId);
-
+            Map<String, String> response = authService.buildAuthResponse(userId, sessionId, isNewUser);
             LOG.info("[RESPONSE] SUCCESS");
 
             String responseJson = GsonProvider.getGson().toJson(response);
